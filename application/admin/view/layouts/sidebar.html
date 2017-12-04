@@ -1,0 +1,86 @@
+<div class="page-sidebar navbar-collapse collapse">
+
+    <!-- BEGIN SIDEBAR MENU -->
+    <ul class="page-sidebar-menu  page-header-fixed " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px">
+        <li class="sidebar-toggler-wrapper hide">
+            <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+            <div class="sidebar-toggler"> </div>
+            <!-- END SIDEBAR TOGGLER BUTTON -->
+        </li>
+        <li class="sidebar-search-wrapper">
+            <!-- BEGIN RESPONSIVE QUICK SEARCH FORM -->
+            <form class="sidebar-search  " action="#" method="POST">
+                <a href="javascript:;" class="remove">
+                    <i class="icon-close"></i>
+                </a>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search...">
+                    <span class="input-group-btn">
+                        <a href="javascript:;" class="btn submit">
+                            <i class="icon-magnifier"></i>
+                        </a>
+                    </span>
+                </div>
+            </form>
+            <!-- END RESPONSIVE QUICK SEARCH FORM -->
+        </li>
+
+        {php}
+            $session_menus = session('menus');
+
+            list($module, $controller) = [request()->module(), request()->controller()];
+            $node = strtolower("/".$module."/".$controller);
+
+            if(count($session_menus)>0){
+                foreach ($session_menus as &$menu) {
+                    $menu['active'] = false;
+                    if(strtolower($menu['url']) == $node) {
+                        $menu['active'] = true;
+                    }
+                    if($menu['hasChild']) {
+                        foreach ($menu['children'] as &$submenu) {
+                            $submenu['active'] = false;
+                            if(strtolower($submenu['url']) == $node) {
+                                $submenu['active'] = true;
+                                $menu['active'] = true;
+                            }
+                        }
+                        unset($submenu);
+                    }
+                }
+                unset($menu);
+            }
+
+        {/php}
+
+
+        {foreach name="$session_menus" item="menu" }
+            <li class="{$menu.active ? 'nav-item active' : 'nav-item'}">
+                <a class="nav-link nav-toggle" href="{$menu.url}">
+                    <i class="{$menu.icon_class}"></i>
+                    <span class="title">{$menu.title}</span>
+                    {if condition="$menu.active"}
+                    <span class="selected"></span>
+                    {/if}
+                    {if condition="$menu.hasChild"}
+                    <span class="arrow {$menu.active ? 'open' : ''}"></span>
+                    {/if}
+                </a>
+                {if condition="$menu.hasChild"}
+                <ul class="sub-menu">
+                    {foreach name="$menu.children" item="submenu" }
+                    <li class="{$submenu.active ? 'nav-item active' : 'nav-item'}">
+                        <a class="nav-link nav-toggle" href="{$submenu.url}">
+                        <i class="{$submenu.icon_class}"></i>&nbsp;
+                        <span class="title">{$submenu.title}</span>
+                        </a>
+                    </li>
+                    {/foreach}
+                </ul>
+            {/if}
+            </li>
+        {/foreach}
+
+    </ul>
+    <!-- END SIDEBAR MENU -->
+</div>
